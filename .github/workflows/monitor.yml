@@ -5,9 +5,29 @@ on:
     - cron: "*/30 * * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    env:
+      REDDIT_ENABLED: ${{ vars.REDDIT_ENABLED }}
+      RSS_ENABLED: ${{ vars.RSS_ENABLED }}
+      HACKER_NEWS_ENABLED: ${{ vars.HACKER_NEWS_ENABLED }}
+      FACEBOOK_PAGE_ENABLED: ${{ vars.FACEBOOK_PAGE_ENABLED }}
+      FACEBOOK_MESSENGER_ENABLED: ${{ vars.FACEBOOK_MESSENGER_ENABLED }}
+      REDDIT_USER_AGENT: ${{ vars.REDDIT_USER_AGENT }}
+      REDDIT_SUBREDDITS: ${{ vars.REDDIT_SUBREDDITS }}
+      RSS_FEEDS: ${{ vars.RSS_FEEDS }}
+      FACEBOOK_GRAPH_API_VERSION: ${{ vars.FACEBOOK_GRAPH_API_VERSION }}
+      FACEBOOK_PAGE_ID: ${{ vars.FACEBOOK_PAGE_ID }}
+      DRY_RUN: ${{ vars.DRY_RUN }}
+      MIN_SCORE: ${{ vars.MIN_SCORE }}
+      FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
+      BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+      ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
+      ALERT_EMAIL_FROM: ${{ secrets.ALERT_EMAIL_FROM }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,8 +46,15 @@ jobs:
 
       - name: Run monitor
         run: npm start
-        env:
-          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-          ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
-          ALERT_EMAIL_FROM: ${{ secrets.ALERT_EMAIL_FROM }}
-          REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
+
+      - name: Commit notified posts changes
+        run: |
+          if git diff --quiet -- data/notified-posts.json; then
+            echo "No notified posts changes"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add data/notified-posts.json
+            git commit -m "chore: update notified posts"
+            git push
+          fi

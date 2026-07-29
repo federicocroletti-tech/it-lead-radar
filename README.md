@@ -100,13 +100,63 @@ Fa:
 - install dipendenze (`npm ci`)
 - build (`npm run build`)
 - run (`npm start`)
+- commit automatico di `data/notified-posts.json` quando cambia
 
-### GitHub Secrets richiesti
+## Configurazione GitHub
+
+### 1) Repository Secrets
+
+Vai su GitHub: `Settings` -> `Secrets and variables` -> `Actions` -> `New repository secret`.
+
+Inserisci questi secret:
 
 - `BREVO_API_KEY`
 - `ALERT_EMAIL_TO`
 - `ALERT_EMAIL_FROM`
+- `FACEBOOK_PAGE_ACCESS_TOKEN`
+
+### 2) Repository Variables
+
+Vai su GitHub: `Settings` -> `Secrets and variables` -> `Actions` -> tab `Variables` -> `New repository variable`.
+
+Inserisci queste variabili:
+
+- `REDDIT_ENABLED`
+- `RSS_ENABLED`
+- `HACKER_NEWS_ENABLED`
+- `FACEBOOK_PAGE_ENABLED`
+- `FACEBOOK_MESSENGER_ENABLED`
 - `REDDIT_USER_AGENT`
+- `REDDIT_SUBREDDITS`
+- `RSS_FEEDS`
+- `FACEBOOK_GRAPH_API_VERSION`
+- `FACEBOOK_PAGE_ID`
+- `DRY_RUN`
+- `MIN_SCORE`
+
+### 3) Avvio manuale workflow
+
+Per lanciare il monitor manualmente:
+
+- apri tab `Actions` nel repository
+- seleziona workflow `IT Lead Radar Monitor`
+- clicca `Run workflow`
+
+### 4) Schedulazione automatica
+
+Il workflow ha cron `*/30 * * * *`, quindi viene avviato automaticamente ogni 30 minuti.
+
+### 5) Commit automatico del file di deduplica
+
+Dopo `npm start`, il workflow controlla `data/notified-posts.json`.
+
+- Se il file e cambiato, esegue commit e push con:
+  - user.name: `github-actions[bot]`
+  - user.email: `github-actions[bot]@users.noreply.github.com`
+  - message: `chore: update notified posts`
+- Se il file non e cambiato, stampa `No notified posts changes` e termina senza errore.
+
+Questo serve a mantenere persistente la deduplica tra esecuzioni schedulate di GitHub Actions.
 
 ## Limiti prima versione
 
