@@ -1,5 +1,6 @@
 import axios from "axios";
 import { LeadPost } from "../models/lead-post";
+import { logger } from "../services/logger.service";
 
 interface RedditListingResponse {
   data?: {
@@ -28,6 +29,12 @@ interface RedditPostData {
   subreddit?: string;
   permalink?: string;
 }
+
+export interface RedditFetchResult {
+  posts: LeadPost[];
+  errors: number;
+}
+
 function mapRedditItemToLead(
   item: RedditPostData | undefined,
 ): LeadPost | null {
@@ -60,8 +67,9 @@ export async function fetchRecentRedditPosts(
   subreddits: string[],
   userAgent: string,
   limit = 25,
-): Promise<LeadPost[]> {
+): Promise<RedditFetchResult> {
   const allPosts: LeadPost[] = [];
+  let errors = 0;
 
   for (const subreddit of subreddits) {
     const endpoint = `https://www.reddit.com/r/${encodeURIComponent(subreddit)}/new.json?limit=${limit}`;
@@ -82,9 +90,14 @@ export async function fetchRecentRedditPosts(
         }
       }
     } catch (error) {
-      console.error(`[REDDIT] errore su r/${subreddit}`, error);
+      errors += 1;
+      const message = error instanceof Error ? error.message : "Errore sconosciuto";
+      logger.warn(`[reddit] Subreddit fetch failed (${subreddit}): ${message}`);
     }
   }
 
-  return allPosts;
+  return {
+    posts: allPosts,
+    errors,
+  };
 }

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { LeadPost } from "../models/lead-post";
+import { logger } from "./logger.service";
 
 interface BrevoMailConfig {
   apiKey: string;
@@ -53,15 +54,15 @@ export class BrevoMailService {
     const textContent = this.buildTextContent(post, summary, keywordList);
 
     if (this.cfg.dryRun) {
-      console.log("[DRY_RUN] Invio email simulato");
-      console.log(`[DRY_RUN] Oggetto: ${this.subject}`);
-      console.log(
-        `[DRY_RUN] Destinatario: ${this.cfg.to || "(non configurato)"}`,
+      logger.info("DRY_RUN enabled: email not sent");
+      logger.info(`[DRY_RUN] Email subject: ${this.subject}`);
+      logger.info(
+        `[DRY_RUN] Email to: ${this.cfg.to || "(non configurato)"}`,
       );
-      console.log(
-        `[DRY_RUN] Mittente: ${this.cfg.from || "(non configurato)"}`,
+      logger.info(
+        `[DRY_RUN] Email from: ${this.cfg.from || "(non configurato)"}`,
       );
-      console.log(`[DRY_RUN] Corpo:\n${textContent}`);
+      logger.info(`[DRY_RUN] Email preview:\n${textContent}`);
       return;
     }
 
