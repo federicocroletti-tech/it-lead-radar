@@ -76,6 +76,14 @@ Per sviluppo locale rapido puoi usare:
 npm run dev
 ```
 
+Nota su DRY_RUN:
+
+- Con `DRY_RUN=true` i secrets Brevo/email non sono obbligatori.
+- Con `DRY_RUN=false` sono obbligatori:
+  - `BREVO_API_KEY`
+  - `ALERT_EMAIL_TO`
+  - `ALERT_EMAIL_FROM`
+
 ## Configurazione
 
 La configurazione principale e in `src/config.ts`.

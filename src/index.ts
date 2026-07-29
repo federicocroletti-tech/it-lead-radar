@@ -8,12 +8,19 @@ import { isRelevant, scorePost } from "./services/scoring.service";
 
 async function run(): Promise<void> {
   logger.info("Avvio monitor IT lead radar...");
+  logger.info(`DRY_RUN=${config.dryRun}`);
+  logger.info(`Brevo configurato: ${config.brevo.apiKey ? "si" : "no"}`);
+  logger.info(`ALERT_EMAIL_TO configurata: ${config.email.to ? "si" : "no"}`);
+  logger.info(
+    `ALERT_EMAIL_FROM configurata: ${config.email.from ? "si" : "no"}`,
+  );
 
   const dedupeService = new DedupeService();
   const mailService = new BrevoMailService({
     apiKey: config.brevo.apiKey,
     from: config.email.from,
     to: config.email.to,
+    dryRun: config.dryRun,
   });
 
   const posts = await fetchRecentRedditPosts(

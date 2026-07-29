@@ -80,12 +80,13 @@ export const config = {
   positiveKeywords: POSITIVE_KEYWORDS,
   negativeKeywords: NEGATIVE_KEYWORDS,
   minScore: Number(process.env.MIN_SCORE ?? "5"),
+  dryRun: (process.env.DRY_RUN ?? "true").toLowerCase() !== "false",
   redditUserAgent: getRequiredEnv("REDDIT_USER_AGENT"),
   brevo: {
-    apiKey: getRequiredEnv("BREVO_API_KEY"),
+    apiKey: process.env.BREVO_API_KEY || "",
   },
   email: {
-    from: getRequiredEnv("ALERT_EMAIL_FROM"),
-    to: getRequiredEnv("ALERT_EMAIL_TO"),
+    from: process.env.ALERT_EMAIL_FROM || "",
+    to: process.env.ALERT_EMAIL_TO || "",
   },
 };
