@@ -56,9 +56,7 @@ export class BrevoMailService {
     if (this.cfg.dryRun) {
       logger.info("DRY_RUN enabled: email not sent");
       logger.info(`[DRY_RUN] Email subject: ${this.subject}`);
-      logger.info(
-        `[DRY_RUN] Email to: ${this.cfg.to || "(non configurato)"}`,
-      );
+      logger.info(`[DRY_RUN] Email to: ${this.cfg.to || "(non configurato)"}`);
       logger.info(
         `[DRY_RUN] Email from: ${this.cfg.from || "(non configurato)"}`,
       );

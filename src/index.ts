@@ -35,17 +35,29 @@ async function run(): Promise<void> {
   logger.info(`Dry-run: ${config.dryRun}`);
   logger.info(`Source enabled - Reddit: ${config.sources.redditEnabled}`);
   logger.info(`Source enabled - RSS: ${config.sources.rssEnabled}`);
-  logger.info(`Source enabled - Hacker News: ${config.sources.hackerNewsEnabled}`);
-  logger.info(`Source enabled - Facebook Page: ${config.sources.facebookPageEnabled}`);
+  logger.info(
+    `Source enabled - Hacker News: ${config.sources.hackerNewsEnabled}`,
+  );
+  logger.info(
+    `Source enabled - Facebook Page: ${config.sources.facebookPageEnabled}`,
+  );
   logger.info(
     `Source enabled - Facebook Messenger: ${config.sources.facebookMessengerEnabled}`,
+  );
+  logger.info(
+    `Source enabled - Facebook Personal Feed: ${config.sources.facebookPersonalFeedEnabled}`,
+  );
+  logger.info(
+    `Source enabled - Facebook Groups: ${config.sources.facebookGroupsEnabled}`,
   );
   logger.info(`MIN_SCORE: ${config.minScore}`);
   logger.info(`Configured subreddits: ${config.subreddits.length}`);
   logger.info(`Configured RSS feeds: ${config.rssFeeds.length}`);
   logger.info(`Brevo configured: ${config.brevo.apiKey ? "yes" : "no"}`);
   logger.info(`ALERT_EMAIL_TO configured: ${config.email.to ? "yes" : "no"}`);
-  logger.info(`ALERT_EMAIL_FROM configured: ${config.email.from ? "yes" : "no"}`);
+  logger.info(
+    `ALERT_EMAIL_FROM configured: ${config.email.from ? "yes" : "no"}`,
+  );
 
   const dedupeService = new DedupeService();
   const mailService = new BrevoMailService({
@@ -59,6 +71,7 @@ async function run(): Promise<void> {
     subreddits: config.subreddits,
     rssFeeds: config.rssFeeds,
     redditUserAgent: config.redditUserAgent,
+    facebook: config.facebook,
     sources: config.sources,
   });
 
@@ -88,7 +101,9 @@ async function run(): Promise<void> {
     logger.info(
       `[lead] source=${post.source} | score=${post.score ?? 0} | title=${post.title}`,
     );
-    logger.info(`[lead] matchedKeywords=${formatKeywords(post.matchedKeywords)}`);
+    logger.info(
+      `[lead] matchedKeywords=${formatKeywords(post.matchedKeywords)}`,
+    );
     logger.info(`[lead] url=${post.url}`);
 
     const alreadyNotified = await dedupeService.hasBeenNotified(post);

@@ -1,4 +1,8 @@
 import { LeadPost } from "../models/lead-post";
+import { FacebookGroupsSource } from "../sources/facebook-groups.source";
+import { FacebookMessengerSource } from "../sources/facebook-messenger.source";
+import { FacebookPageSource } from "../sources/facebook-page.source";
+import { FacebookPersonalFeedSource } from "../sources/facebook-personal-feed.source";
 import { fetchRecentRedditPosts } from "../sources/reddit.source";
 import { logger } from "./logger.service";
 
@@ -6,12 +10,19 @@ interface SourceRunnerConfig {
   subreddits: string[];
   rssFeeds: string[];
   redditUserAgent: string;
+  facebook: {
+    graphApiVersion: string;
+    pageId: string;
+    pageAccessToken: string;
+  };
   sources: {
     redditEnabled: boolean;
     rssEnabled: boolean;
     hackerNewsEnabled: boolean;
     facebookPageEnabled: boolean;
     facebookMessengerEnabled: boolean;
+    facebookPersonalFeedEnabled: boolean;
+    facebookGroupsEnabled: boolean;
   };
 }
 
@@ -40,17 +51,16 @@ async function fetchHackerNewsStub(): Promise<SourceFetchResult> {
   return { posts: [], errors: 0 };
 }
 
-async function fetchFacebookPageStub(): Promise<SourceFetchResult> {
-  return { posts: [], errors: 0 };
-}
-
-async function fetchFacebookMessengerStub(): Promise<SourceFetchResult> {
-  return { posts: [], errors: 0 };
-}
-
-export async function runSources(cfg: SourceRunnerConfig): Promise<SourceRunStats> {
+export async function runSources(
+  cfg: SourceRunnerConfig,
+): Promise<SourceRunStats> {
   const allPosts: LeadPost[] = [];
   let sourceErrors = 0;
+
+  const facebookPageSource = new FacebookPageSource(cfg.facebook);
+  const facebookMessengerSource = new FacebookMessengerSource(cfg.facebook);
+  const facebookPersonalFeedSource = new FacebookPersonalFeedSource();
+  const facebookGroupsSource = new FacebookGroupsSource();
 
   const sources: Array<{
     key: string;
@@ -76,12 +86,34 @@ export async function runSources(cfg: SourceRunnerConfig): Promise<SourceRunStat
     {
       key: "facebook-page",
       enabled: cfg.sources.facebookPageEnabled,
-      fetcher: () => fetchFacebookPageStub(),
+      fetcher: async () => ({
+        posts: await facebookPageSource.fetchPosts(),
+        errors: 0,
+      }),
     },
     {
       key: "facebook-messenger",
       enabled: cfg.sources.facebookMessengerEnabled,
-      fetcher: () => fetchFacebookMessengerStub(),
+      fetcher: async () => ({
+        posts: await facebookMessengerSource.fetchPosts(),
+        errors: 0,
+      }),
+    },
+    {
+      key: "facebook-personal-feed",
+      enabled: cfg.sources.facebookPersonalFeedEnabled,
+      fetcher: async () => ({
+        posts: await facebookPersonalFeedSource.fetchPosts(),
+        errors: 0,
+      }),
+    },
+    {
+      key: "facebook-groups",
+      enabled: cfg.sources.facebookGroupsEnabled,
+      fetcher: async () => ({
+        posts: await facebookGroupsSource.fetchPosts(),
+        errors: 0,
+      }),
     },
   ];
 
@@ -97,7 +129,9 @@ export async function runSources(cfg: SourceRunnerConfig): Promise<SourceRunStat
       const result = await source.fetcher();
       allPosts.push(...result.posts);
       sourceErrors += result.errors;
-      logger.info(`[${source.key}] Fetch completed: ${result.posts.length} posts`);
+      logger.info(
+        `[${source.key}] Fetch completed: ${result.posts.length} posts`,
+      );
       if (result.errors > 0) {
         logger.warn(`[${source.key}] Fetch errors: ${result.errors}`);
       }

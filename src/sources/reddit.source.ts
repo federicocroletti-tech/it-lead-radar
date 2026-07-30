@@ -91,7 +91,8 @@ export async function fetchRecentRedditPosts(
       }
     } catch (error) {
       errors += 1;
-      const message = error instanceof Error ? error.message : "Errore sconosciuto";
+      const message =
+        error instanceof Error ? error.message : "Errore sconosciuto";
       logger.warn(`[reddit] Subreddit fetch failed (${subreddit}): ${message}`);
     }
   }

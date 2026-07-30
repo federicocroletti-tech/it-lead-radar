@@ -1,6 +1,30 @@
 import { LeadPost } from "../models/lead-post";
 
-const LOCAL_HINTS = ["milano", "lombardia", "zona", "vicino", "quartiere"];
+const LOCAL_HINTS = [
+  "milano",
+  "lombardia",
+  "zona",
+  "quartiere",
+  "provincia",
+  "vicino",
+];
+
+const INTENT_PHRASES = [
+  "cerco",
+  "mi serve",
+  "ho bisogno",
+  "qualcuno sa",
+  "qualcuno conosce",
+];
+
+const NEED_TERMS = [
+  "sito",
+  "informatico",
+  "pc",
+  "gestionale",
+  "app",
+  "software",
+];
 
 export interface ScoringResult {
   score: number;
@@ -9,6 +33,14 @@ export interface ScoringResult {
 
 function includesKeyword(content: string, keyword: string): boolean {
   return content.includes(keyword.toLowerCase());
+}
+
+function hasIntentTitleMatch(title: string): boolean {
+  const hasIntent = INTENT_PHRASES.some((phrase) =>
+    includesKeyword(title, phrase),
+  );
+  const hasNeedTerm = NEED_TERMS.some((term) => includesKeyword(title, term));
+  return hasIntent && hasNeedTerm;
 }
 
 export function scorePost(
@@ -22,6 +54,11 @@ export function scorePost(
 
   let score = 0;
   const matched = new Set<string>();
+
+  if (hasIntentTitleMatch(title)) {
+    score += 6;
+    matched.add("intent:title");
+  }
 
   for (const keyword of positiveKeywords) {
     if (includesKeyword(title, keyword)) {
@@ -42,8 +79,11 @@ export function scorePost(
   }
 
   for (const keyword of negativeKeywords) {
-    if (includesKeyword(combined, keyword)) {
-      score -= 5;
+    if (includesKeyword(title, keyword)) {
+      score -= 6;
+    }
+    if (includesKeyword(text, keyword)) {
+      score -= 4;
     }
   }
 

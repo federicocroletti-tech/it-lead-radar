@@ -97,6 +97,33 @@ Contiene:
 
 Puoi sovrascrivere i subreddit con variabile ambiente opzionale `SUBREDDITS` (separati da virgola) e la soglia con `MIN_SCORE`.
 
+## Integrazione Facebook (ufficiale)
+
+Questa app non fa scraping di Facebook.
+Questa app non fa login automatico su Facebook.
+Questa app non legge homepage personale, gruppi generici o messaggi privati del profilo personale.
+
+Supportato:
+
+- Facebook Page: lettura post/commenti della Pagina configurata tramite Graph API ufficiale (se permessi Meta validi).
+- Facebook Messenger Page: lettura conversazioni collegate alla Pagina tramite Messenger Platform / Graph API ufficiali.
+
+Non supportato automaticamente:
+
+- Facebook personal feed del profilo personale
+- Facebook Groups generici
+- Messaggi privati del profilo personale
+
+Motivo:
+
+- Le API ufficiali Meta non consentono a una normale app questi accessi in modo libero.
+
+Alternativa consigliata:
+
+- usare una Pagina Facebook e Messenger della Pagina con token e permessi approvati.
+
+Nessuno scraping viene eseguito in questa applicazione.
+
 ## GitHub Actions
 
 Il workflow e in `.github/workflows/monitor.yml`.
@@ -134,6 +161,8 @@ Inserisci queste variabili:
 - `HACKER_NEWS_ENABLED`
 - `FACEBOOK_PAGE_ENABLED`
 - `FACEBOOK_MESSENGER_ENABLED`
+- `FACEBOOK_PERSONAL_FEED_ENABLED`
+- `FACEBOOK_GROUPS_ENABLED`
 - `REDDIT_USER_AGENT`
 - `REDDIT_SUBREDDITS`
 - `RSS_FEEDS`
